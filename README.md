@@ -8,7 +8,7 @@ Install all dependencies running:
 
 ```sh
 cd front
-npm install # npm i
+npm install # or npm i
 ```
 
 Before, run front project executing:
