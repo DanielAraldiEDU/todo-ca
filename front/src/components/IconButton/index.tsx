@@ -13,6 +13,7 @@ export function IconButton(props: IconButtonProps) {
   const [shouldConfirm, setShouldConfirm] = useState<boolean>(false);
 
   const isRemove = variant === 'remove';
+  const isSave = variant === 'save';
 
   function onAction(): void {
     if (isRemove) setShouldConfirm(true);
@@ -45,30 +46,24 @@ export function IconButton(props: IconButtonProps) {
     edit: 'Editar',
   };
 
-  const borderColors: Record<IconButtonVariantType, string> = {
-    'go-back': 'border-neutral-200',
-    remove: 'border-red-500',
-    save: 'border-green-500',
-    edit: 'border-neutral-300',
-  };
-
-  const shadows: Record<IconButtonVariantType, string> = {
-    'go-back': 'shadow-neutral-200',
-    remove: 'shadow-red-500',
-    save: 'shadow-green-500',
-    edit: 'shadow-neutral-300',
+  const ringColors: Record<IconButtonVariantType, string> = {
+    'go-back': 'ring-neutral-200',
+    remove: 'ring-red-500',
+    save: 'ring-green-500',
+    edit: 'ring-neutral-300',
   };
 
   const backgroundColor =
     isRemove && shouldConfirm ? 'bg-red-500' : 'bg-transparent';
+  const buttonType = isSave ? 'submit' : 'button';
 
   return (
     <button
-      type='button'
+      type={buttonType}
       title={titles[variant]}
       disabled={disabled}
       onClick={shouldConfirm ? onConfirm : onAction}
-      className={`flex size-12 justify-center items-center border-2 ${borderColors[variant]} ${backgroundColor} outline-none rounded-lg cursor-pointer ${shadows[variant]} shadow-sm hover:opacity-95 hover:disabled:opacity-80 disabled:cursor-not-allowed disabled:opacity-80`}
+      className={`flex size-12 justify-center items-center ${backgroundColor} outline-none ring-1 ${ringColors[variant]} rounded-lg cursor-pointer focus:ring-2 focus-within:right-2 hover:opacity-90 hover:disabled:opacity-80 disabled:cursor-not-allowed disabled:opacity-80`}
     >
       <Icon name={iconNames[variant]} color={iconColors[variant]} />
     </button>
