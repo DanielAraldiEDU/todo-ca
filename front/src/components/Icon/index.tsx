@@ -18,11 +18,10 @@ export function Icon(props: IconProps) {
   const { name, size = 'medium', color = 'primary' } = props;
 
   const colors: Record<IconColorType, string> = {
+    primary: '#f5f5f5',
+    secondary: '#171717',
     success: '#22c55e',
     error: '#ef4444',
-    neutral: '#d4d4d4',
-    secondary: '#171717',
-    primary: '#f5f5f5',
   };
 
   const sizes: Record<IconSizeType, number> = {

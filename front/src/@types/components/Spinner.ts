@@ -1,4 +1,4 @@
-export type SpinnerColorType = 'success' | 'primary';
+export type SpinnerColorType = 'primary' | 'secondary' | 'success';
 
 export interface SpinnerProps {
   color?: SpinnerColorType;

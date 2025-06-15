@@ -1,7 +1,8 @@
 export type TodoCardVariantType = 'add' | 'edit';
 
 export interface TodoCardProps {
-  variant?: TodoCardVariantType;
-  title: string;
-  annotations: string;
+  variant: TodoCardVariantType;
+  id?: string;
+  title?: string;
+  annotations?: string;
 }

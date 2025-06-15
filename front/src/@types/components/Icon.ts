@@ -5,12 +5,7 @@ export type IconNameType =
   | 'arrow-clockwise'
   | 'note-blank';
 export type IconSizeType = 'medium' | 'xx-large';
-export type IconColorType =
-  | 'primary'
-  | 'secondary'
-  | 'success'
-  | 'error'
-  | 'neutral';
+export type IconColorType = 'primary' | 'secondary' | 'success' | 'error';
 
 export interface IconProps {
   name: IconNameType;

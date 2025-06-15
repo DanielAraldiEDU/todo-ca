@@ -1,15 +1,12 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react';
-import { type TodoDtoProps } from '../../@types';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type FormEvent,
+} from 'react';
+import { type TodoCardProps, type TodoDtoProps } from '../../@types';
 import { Input, IconButton } from '../';
-
-export type TodoCardVariantType = 'add' | 'edit';
-
-export interface TodoCardProps {
-  variant: TodoCardVariantType;
-  id?: string;
-  title?: string;
-  annotations?: string;
-}
 
 export function TodoCard(props: TodoCardProps) {
   const { variant, id = '', title = '', annotations = '' } = props;
@@ -30,7 +27,7 @@ export function TodoCard(props: TodoCardProps) {
     }
   }
 
-  function onEditing() {
+  const onEditing = useCallback(() => {
     if (isEditing) {
       setTodo({ id, title, annotations });
       setIsReadOnly(true);
@@ -39,7 +36,31 @@ export function TodoCard(props: TodoCardProps) {
       setIsReadOnly(false);
       setIsEditing(true);
     }
-  }
+  }, [isEditing, id, title, annotations]);
+
+  const renderButtons = useMemo(
+    () =>
+      isEdit ? (
+        <>
+          <IconButton
+            variant={isEditing ? 'go-back' : 'edit'}
+            // disabled - TODO: Only when a request is in progress
+            onClick={onEditing}
+          />
+
+          <IconButton
+            variant={isEditing ? 'save' : 'remove'}
+            // disabled - TODO: Only when a request is in progress
+          />
+        </>
+      ) : (
+        <IconButton
+          variant='save'
+          // disabled - TODO: Only when a request is in progress
+        />
+      ),
+    [isEdit, isEditing, onEditing]
+  );
 
   useEffect(() => {
     setTodo({ id, title, annotations });
@@ -59,27 +80,7 @@ export function TodoCard(props: TodoCardProps) {
           onChange={text => setTodo({ ...todo, title: text })}
         />
 
-        <div className='flex flex-row items-center gap-3'>
-          {isEdit ? (
-            <>
-              <IconButton
-                variant={isEditing ? 'go-back' : 'edit'}
-                // disabled - TODO: Only when a request is in progress
-                onClick={onEditing}
-              />
-
-              <IconButton
-                variant={isEditing ? 'save' : 'remove'}
-                // disabled - TODO: Only when a request is in progress
-              />
-            </>
-          ) : (
-            <IconButton
-              variant='save'
-              // disabled - TODO: Only when a request is in progress
-            />
-          )}
-        </div>
+        <div className='flex flex-row items-center gap-3'>{renderButtons}</div>
       </div>
 
       <Input

@@ -4,8 +4,9 @@ export function Spinner(props: SpinnerProps) {
   const { color = 'primary' } = props;
 
   const borderColors: Record<SpinnerColorType, string> = {
-    success: 'border-green-500',
     primary: 'border-neutral-900',
+    secondary: 'border-neutral-100',
+    success: 'border-green-500',
   };
 
   return (
