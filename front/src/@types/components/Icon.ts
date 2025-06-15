@@ -1,4 +1,10 @@
-export type IconNameType = 'pencil' | 'trash' | 'check' | 'arrow-clockwise';
+export type IconNameType =
+  | 'pencil'
+  | 'trash'
+  | 'check'
+  | 'arrow-clockwise'
+  | 'note-blank';
+export type IconSizeType = 'medium' | 'xx-large';
 export type IconColorType =
   | 'primary'
   | 'secondary'
@@ -8,5 +14,6 @@ export type IconColorType =
 
 export interface IconProps {
   name: IconNameType;
+  size?: IconSizeType;
   color?: IconColorType;
 }

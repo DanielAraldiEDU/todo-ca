@@ -5,11 +5,17 @@ import {
   CheckIcon,
   ArrowClockwiseIcon,
   type IconProps as PhosphorIconProps,
+  NoteBlankIcon,
 } from '@phosphor-icons/react';
-import type { IconColorType, IconNameType, IconProps } from '../../@types';
+import type {
+  IconColorType,
+  IconNameType,
+  IconProps,
+  IconSizeType,
+} from '../../@types';
 
 export function Icon(props: IconProps) {
-  const { name, color = 'primary' } = props;
+  const { name, size = 'medium', color = 'primary' } = props;
 
   const colors: Record<IconColorType, string> = {
     success: '#22c55e',
@@ -19,8 +25,13 @@ export function Icon(props: IconProps) {
     primary: '#f5f5f5',
   };
 
+  const sizes: Record<IconSizeType, number> = {
+    medium: 24,
+    'xx-large': 64,
+  };
+
   const commonIconProps: PhosphorIconProps = {
-    size: 24,
+    size: sizes[size],
     color: colors[color],
   };
 
@@ -29,6 +40,7 @@ export function Icon(props: IconProps) {
     trash: <TrashIcon {...commonIconProps} />,
     check: <CheckIcon {...commonIconProps} />,
     'arrow-clockwise': <ArrowClockwiseIcon {...commonIconProps} />,
+    'note-blank': <NoteBlankIcon {...commonIconProps} />,
   };
 
   return icons[name];
