@@ -25,7 +25,7 @@ export function Input(props: InputProps) {
             required
             placeholder='Título'
             type='text'
-            className='flex w-full h-14 px-4 py-1 ring-1 ring-neutral-100 rounded-lg outline-none text-xl text-neutral-100 focus:ring-2 focus-within:right-2 hover:opacity-90 hover:disabled:opacity-80 disabled:cursor-not-allowed disabled:opacity-80 placeholder:text-neutral-500'
+            className='flex w-full h-14 px-4 py-1 ring-1 ring-neutral-500 rounded-lg outline-none text-xl text-neutral-100 focus:ring-2 focus-within:right-2 hover:opacity-90 hover:disabled:opacity-80 disabled:cursor-not-allowed disabled:opacity-80 placeholder:text-neutral-500'
             onChange={onChangeText}
             min={1}
             minLength={1}
@@ -45,7 +45,7 @@ export function Input(props: InputProps) {
             placeholder='Anotações'
             rows={5}
             minLength={1}
-            className='flex w-full h-24 min-h-20 max-h-96 p-4 ring-1 ring-neutral-100 rounded-lg outline-none text-xl text-neutral-100 focus:ring-2 focus-within:right-2 hover:opacity-90 hover:disabled:opacity-80 disabled:cursor-not-allowed disabled:opacity-80 disabled:resize-none placeholder:text-neutral-500'
+            className='flex w-full h-24 min-h-20 p-4 ring-1 ring-neutral-500 rounded-lg outline-none text-xl text-neutral-100 focus:ring-2 focus-within:right-2 hover:opacity-90 hover:disabled:opacity-80 disabled:cursor-not-allowed disabled:opacity-80 disabled:resize-none placeholder:text-neutral-500'
             onChange={onChangeText}
             value={value}
             {...rest}
