@@ -1,4 +1,4 @@
-import { Divider, TodoCard } from './components';
+import { TodoCard } from './components';
 
 function App() {
   return (
@@ -6,7 +6,11 @@ function App() {
       <div className='flex flex-col w-full max-w-4xl gap-8'>
         <TodoCard variant='add' />
 
-        <Divider />
+        {/* TODO: It should render a <Divider /> when there are todos */}
+
+        {/* TODO: Add it when todos exists <TodoCard variant='edit' /> */}
+
+        {/* TODO: Show <EmptyState /> when there are no todos */}
       </div>
     </main>
   );
