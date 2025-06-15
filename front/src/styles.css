@@ -18,5 +18,10 @@ body {
   background-color: #171717;
 
   scrollbar-width: thin;
-  scrollbar-color: #262626;
+  scrollbar-color: #262626 transparent;
+}
+
+textarea {
+  scrollbar-width: thin;
+  scrollbar-color: #737373 transparent;
 }
