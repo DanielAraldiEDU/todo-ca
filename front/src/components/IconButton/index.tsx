@@ -55,7 +55,7 @@ export function IconButton(props: IconButtonProps) {
 
   const backgroundColor =
     isRemove && shouldConfirm ? 'bg-red-500' : 'bg-transparent';
-  const buttonType = isSave ? 'submit' : 'button';
+  const buttonType = isSave || isRemove ? 'submit' : 'button';
 
   return (
     <button
@@ -63,7 +63,7 @@ export function IconButton(props: IconButtonProps) {
       title={titles[variant]}
       disabled={disabled}
       onClick={shouldConfirm ? onConfirm : onAction}
-      className={`flex size-12 justify-center items-center ${backgroundColor} outline-none ring-1 ${ringColors[variant]} rounded-lg cursor-pointer focus:ring-2 focus-within:right-2 hover:opacity-90 hover:disabled:opacity-80 disabled:cursor-not-allowed disabled:opacity-80`}
+      className={`flex size-14 justify-center items-center ${backgroundColor} outline-none ring-1 ${ringColors[variant]} rounded-lg cursor-pointer focus:ring-2 focus-within:right-2 hover:opacity-90 hover:disabled:opacity-80 disabled:cursor-not-allowed disabled:opacity-80`}
     >
       <Icon name={iconNames[variant]} color={iconColors[variant]} />
     </button>
