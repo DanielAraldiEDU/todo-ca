@@ -69,6 +69,7 @@ export function IconButton(props: IconButtonProps) {
 
   return (
     <button
+      tabIndex={0}
       type={buttonType}
       title={titles[variant]}
       disabled={disabled || loading}
