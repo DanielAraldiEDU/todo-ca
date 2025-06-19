@@ -2,10 +2,11 @@ import { useMutation } from '@tanstack/react-query';
 import { api } from '../config';
 import { queryClient } from '../main';
 import type { ResponseProps, TodoDTOProps, TodoModelProps } from '../@types';
+import { parseTodoToDTO } from '../helpers';
 
 export function useEditTodo() {
   async function editTodo(
-    params: Omit<TodoDTOProps, 'createdAt' | 'updatedAt'>
+    params: Omit<TodoDTOProps, 'created_at' | 'updated_at'>
   ) {
     const { id, ...data } = params;
 
@@ -13,7 +14,7 @@ export function useEditTodo() {
       `/todo/${id}`,
       data
     );
-    return response.data.body;
+    return parseTodoToDTO(response.data.body);
   }
 
   return useMutation({

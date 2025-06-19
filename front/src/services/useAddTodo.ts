@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import type { ResponseProps, TodoDTOProps, TodoModelProps } from '../@types';
 import { api } from '../config';
 import { queryClient } from '../main';
+import { parseTodoToDTO } from '../helpers';
 
 export function useAddTodo() {
   async function addTodo(params: TodoDTOProps) {
@@ -11,7 +12,7 @@ export function useAddTodo() {
       title,
       annotation,
     });
-    return response.data.body;
+    return parseTodoToDTO(response.data.body);
   }
 
   return useMutation({

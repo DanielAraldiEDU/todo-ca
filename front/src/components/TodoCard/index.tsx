@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import { type TodoCardProps, type TodoDTOProps } from '../../@types';
 import { Input, IconButton } from '../';
 import { useAddTodo, useEditTodo, useRemoveTodo } from '../../services';
+import { formatDate } from '../../utils';
 
 export function TodoCard(props: TodoCardProps) {
   const {
@@ -34,19 +35,18 @@ export function TodoCard(props: TodoCardProps) {
     }
 
     if (isRevert) {
-      if (!isEdit) {
-        setTodo({ id: '', title: '', annotation: '', updatedAt: null });
-      }
-      setIsReadOnly(isEdit);
-      setIsRevert(false);
-    } else {
       if (isEdit) {
         const result = await edit(todo);
         setTodo(result);
       } else {
-        const result = await create(todo);
-        setTodo(result);
+        setTodo({ id: '', title: '', annotation: '', updatedAt: null });
       }
+
+      setIsReadOnly(isEdit);
+      setIsRevert(false);
+    } else {
+      await create(todo);
+      setTodo({ id: '', title: '', annotation: '', updatedAt: null });
     }
   }, [todo, isRevert, isEdit, create, edit]);
 
@@ -108,8 +108,8 @@ export function TodoCard(props: TodoCardProps) {
   }, [id, title, annotation, updatedAt, isEdit]);
 
   return (
-    <form className='flex flex-col w-full h-auto p-8 gap-10 bg-neutral-800 ring-1 ring-neutral-500 rounded-2xl'>
-      <div className='flex flex-row w-full h-auto items-start gap-5'>
+    <form className='relative flex flex-col w-full h-auto p-8 gap-10 bg-neutral-800 ring-1 ring-neutral-500 rounded-2xl'>
+      <div className='flex flex-row w-full h-auto items-center gap-5'>
         <Input
           value={todo.title}
           variant='text'
@@ -121,13 +121,23 @@ export function TodoCard(props: TodoCardProps) {
         <div className='flex flex-row items-center gap-3'>{renderButtons}</div>
       </div>
 
-      <Input
-        value={todo.annotation}
-        variant='textarea'
-        disabled={isDisabledInput}
-        readOnly={isReadOnly}
-        onChange={text => setTodo({ ...todo, annotation: text })}
-      />
+      <div className='flex flex-col w-full h-auto gap-5'>
+        <Input
+          value={todo.annotation}
+          variant='textarea'
+          disabled={isDisabledInput}
+          readOnly={isReadOnly}
+          onChange={text => setTodo({ ...todo, annotation: text })}
+        />
+
+        {updatedAt && (
+          <div className='flex w-full px-4 justify-center'>
+            <span className='text-xs text-neutral-300'>
+              {formatDate(updatedAt)}
+            </span>
+          </div>
+        )}
+      </div>
     </form>
   );
 }
