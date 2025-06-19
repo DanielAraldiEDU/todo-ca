@@ -12,7 +12,6 @@ export class ValidationComposite implements Validation {
       const error = validator.validate(input);
       if (error) return error;
     }
-
     return null;
   }
 }

@@ -3,15 +3,17 @@ import 'dotenv/config';
 import express, { json } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import { created, noContent, ok, serverError } from './helpers';
+import { badRequest, created, noContent, ok, serverError } from './helpers';
 import { RequiredFieldValidation, ValidationComposite } from './validators';
 import {
   CassandraRepository,
   CassandraHelper,
 } from './repositories/db/cassandra';
+import { environments } from './config';
+import { NotFoundError } from './errors';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = environments.PORT;
 
 app.use(json());
 app.use(cors());
@@ -24,7 +26,7 @@ app.get('/todos', async (_, res) => {
 
     res.json(ok(result));
   } catch (error) {
-    res.status(500).json(serverError(error));
+    res.status(500).json(serverError(error as Error));
   }
 });
 
@@ -38,17 +40,20 @@ app.post('/todo', async (req, res) => {
     ]);
 
     const error = validations.validate(req.body);
-    if (error) res.status(400).json(error);
+    if (error) {
+      res.status(400).json(badRequest(error));
+      return;
+    }
 
     const cassandraRepository = new CassandraRepository();
-    const result = await cassandraRepository.create({
+    const result = await cassandraRepository.add({
       title,
       annotation,
     });
 
     res.status(201).json(created(result));
   } catch (error) {
-    res.status(500).json(serverError(error));
+    res.status(500).json(serverError(error as Error));
   }
 });
 
@@ -64,17 +69,29 @@ app.put('/todo/:id', async (req, res) => {
     ]);
 
     const error = validations.validate({ ...req.body, ...req.params });
-    if (error) res.status(400).json(error);
+    if (error) {
+      res.status(400).json(badRequest(error));
+      return;
+    }
 
     const cassandraRepository = new CassandraRepository();
-    const result = await cassandraRepository.update(id, {
+
+    const todoAlreadyExists = await cassandraRepository.find(id);
+    if (!todoAlreadyExists) {
+      res.status(400).json(badRequest(new NotFoundError(id)));
+      return;
+    }
+
+    const result = await cassandraRepository.update({
+      id,
       title,
       annotation,
     });
 
     res.status(200).json(ok(result));
   } catch (error) {
-    res.status(500).json(serverError(error));
+    console.log(error);
+    res.status(500).json(serverError(error as Error));
   }
 });
 
@@ -87,14 +104,23 @@ app.delete('/todo/:id', async (req, res) => {
     ]);
 
     const error = validations.validate(req.params);
-    if (error) res.status(400).json(error);
+    if (error) {
+      res.status(400).json(badRequest(error));
+      return;
+    }
 
     const cassandraRepository = new CassandraRepository();
+    const todoAlreadyExists = await cassandraRepository.find(id);
+    if (!todoAlreadyExists) {
+      res.status(400).json(badRequest(new NotFoundError(id)));
+      return;
+    }
+
     await cassandraRepository.delete(id);
 
     res.status(204).json(noContent());
   } catch (error) {
-    res.status(500).json(serverError(error));
+    res.status(500).json(serverError(error as Error));
   }
 });
 

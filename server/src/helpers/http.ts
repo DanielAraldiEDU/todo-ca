@@ -8,10 +8,10 @@ export function serverError(error: Error): HttpResponse {
   };
 }
 
-export function badRequest(param: string): HttpResponse {
+export function badRequest(error: Error): HttpResponse {
   return {
     status: 400,
-    body: new MissingParamError(param),
+    body: error,
   };
 }
 
