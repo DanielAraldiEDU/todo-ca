@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type {
   IconButtonProps,
   IconButtonVariantType,
@@ -7,11 +7,14 @@ import type {
   SpinnerColorType,
 } from '../../@types';
 import { Icon, Spinner } from '../';
+import { DURATION } from '../../config';
 
 export function IconButton(props: IconButtonProps) {
   const { variant, loading = false, disabled = false, onClick } = props;
 
   const [shouldConfirm, setShouldConfirm] = useState<boolean>(false);
+
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const isRemove = variant === 'remove';
 
@@ -65,8 +68,23 @@ export function IconButton(props: IconButtonProps) {
   const shouldShowLoadingRemove = isRemove && loading && shouldConfirm;
   const shouldShowLoading = !isRemove && loading;
 
+  useEffect(() => {
+    let timeout: number | null = null;
+
+    if (shouldConfirm) {
+      timeout = setTimeout(() => {
+        setShouldConfirm(false);
+      }, DURATION);
+    }
+
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [shouldConfirm]);
+
   return (
     <button
+      ref={buttonRef}
       type='button'
       tabIndex={0}
       title={titles[variant]}
