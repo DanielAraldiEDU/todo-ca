@@ -1,14 +1,8 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  type FormEvent,
-} from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { type TodoCardProps, type TodoDTOProps } from '../../@types';
 import { Input, IconButton } from '../';
-import { useAddTodo } from '../../services';
+import { useAddTodo, useRemoveTodo } from '../../services';
 
 export function TodoCard(props: TodoCardProps) {
   const {
@@ -25,15 +19,14 @@ export function TodoCard(props: TodoCardProps) {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [todo, setTodo] = useState<TodoDTOProps>({} as TodoDTOProps);
 
-  const { isPending: isCreated, mutateAsync: create } = useAddTodo();
+  const { isPending: isCreating, mutateAsync: create } = useAddTodo();
+  const { isPending: isRemoving, mutateAsync: remove } = useRemoveTodo();
 
-  async function onSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
+  const onSubmit = useCallback(async () => {
     const { title, annotation } = todo;
 
-    if (!title.trim() && !annotation.trim()) {
-      toast.error('Título e anotação não podem estar vazios.');
+    if (!title.trim() || !annotation.trim()) {
+      toast.error('Os campos de título e anotações não podem estar vazios.');
       return;
     }
 
@@ -47,7 +40,7 @@ export function TodoCard(props: TodoCardProps) {
       const result = await create(todo);
       setTodo(result);
     }
-  }
+  }, [todo, isEditing, isEdit, create]);
 
   const onEditing = useCallback(() => {
     if (isEditing) {
@@ -60,25 +53,36 @@ export function TodoCard(props: TodoCardProps) {
     }
   }, [isEditing, id, title, annotation, updatedAt]);
 
+  const onRemove = useCallback(async () => {
+    await remove(id);
+  }, [remove, id]);
+
   const renderButtons = useMemo(
     () =>
       isEdit ? (
         <>
           <IconButton
             variant={isEditing ? 'go-back' : 'edit'}
-            disabled={isCreated}
+            disabled={isRemoving}
             onClick={onEditing}
           />
 
           <IconButton
             variant={isEditing ? 'save' : 'remove'}
-            disabled={isCreated}
+            disabled={isRemoving}
+            loading={isRemoving}
+            onClick={isEditing ? onSubmit : onRemove}
           />
         </>
       ) : (
-        <IconButton variant='save' disabled={isCreated} loading={isCreated} />
+        <IconButton
+          variant='save'
+          disabled={isCreating}
+          loading={isCreating}
+          onClick={onSubmit}
+        />
       ),
-    [isEdit, isEditing, isCreated, onEditing]
+    [isEdit, isEditing, isCreating, isRemoving, onEditing, onRemove, onSubmit]
   );
 
   useEffect(() => {
@@ -86,15 +90,12 @@ export function TodoCard(props: TodoCardProps) {
   }, [id, title, annotation, updatedAt, isEdit]);
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className='flex flex-col w-full h-auto p-8 gap-10 bg-neutral-800 ring-1 ring-neutral-500 rounded-2xl'
-    >
+    <form className='flex flex-col w-full h-auto p-8 gap-10 bg-neutral-800 ring-1 ring-neutral-500 rounded-2xl'>
       <div className='flex flex-row w-full h-auto items-start gap-5'>
         <Input
           value={todo.title}
           variant='text'
-          disabled={isCreated}
+          disabled={isCreating || isRemoving}
           readOnly={isReadOnly}
           onChange={text => setTodo({ ...todo, title: text })}
         />
@@ -105,7 +106,7 @@ export function TodoCard(props: TodoCardProps) {
       <Input
         value={todo.annotation}
         variant='textarea'
-        disabled={isCreated}
+        disabled={isCreating || isRemoving}
         readOnly={isReadOnly}
         onChange={text => setTodo({ ...todo, annotation: text })}
       />

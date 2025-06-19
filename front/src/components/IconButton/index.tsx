@@ -14,7 +14,6 @@ export function IconButton(props: IconButtonProps) {
   const [shouldConfirm, setShouldConfirm] = useState<boolean>(false);
 
   const isRemove = variant === 'remove';
-  const isSave = variant === 'save';
 
   function onAction(): void {
     if (isRemove) setShouldConfirm(true);
@@ -63,15 +62,13 @@ export function IconButton(props: IconButtonProps) {
 
   const backgroundColor =
     isRemove && shouldConfirm ? 'bg-red-500' : 'bg-transparent';
-  const buttonType =
-    isSave || (isRemove && shouldConfirm) ? 'submit' : 'button';
   const shouldShowLoadingRemove = isRemove && loading && shouldConfirm;
   const shouldShowLoading = !isRemove && loading;
 
   return (
     <button
+      type='button'
       tabIndex={0}
-      type={buttonType}
       title={titles[variant]}
       disabled={disabled || loading}
       onClick={shouldConfirm ? onConfirm : onAction}
