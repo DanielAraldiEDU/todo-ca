@@ -5,15 +5,17 @@ import {
   useState,
   type FormEvent,
 } from 'react';
+import { toast } from 'sonner';
 import { type TodoCardProps, type TodoDTOProps } from '../../@types';
 import { Input, IconButton } from '../';
+import { useAddTodo } from '../../services';
 
 export function TodoCard(props: TodoCardProps) {
   const {
     variant,
     id = '',
     title = '',
-    annotations = '',
+    annotation = '',
     updatedAt = null,
   } = props;
 
@@ -23,28 +25,40 @@ export function TodoCard(props: TodoCardProps) {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [todo, setTodo] = useState<TodoDTOProps>({} as TodoDTOProps);
 
+  const { isPending: isCreated, mutateAsync: create } = useAddTodo();
+
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    const { title, annotation } = todo;
+
+    if (!title.trim() && !annotation.trim()) {
+      toast.error('Título e anotação não podem estar vazios.');
+      return;
+    }
+
     if (isEditing) {
       if (!isEdit) {
-        setTodo({ id: '', title: '', annotations: '', updatedAt: null });
+        setTodo({ id: '', title: '', annotation: '', updatedAt: null });
       }
       setIsReadOnly(isEdit);
       setIsEditing(false);
+    } else {
+      const result = await create(todo);
+      setTodo(result);
     }
   }
 
   const onEditing = useCallback(() => {
     if (isEditing) {
-      setTodo({ id, title, annotations, updatedAt });
+      setTodo({ id, title, annotation, updatedAt });
       setIsReadOnly(true);
       setIsEditing(false);
     } else {
       setIsReadOnly(false);
       setIsEditing(true);
     }
-  }, [isEditing, id, title, annotations, updatedAt]);
+  }, [isEditing, id, title, annotation, updatedAt]);
 
   const renderButtons = useMemo(
     () =>
@@ -52,27 +66,24 @@ export function TodoCard(props: TodoCardProps) {
         <>
           <IconButton
             variant={isEditing ? 'go-back' : 'edit'}
-            // disabled - TODO: Only when a request is in progress
+            disabled={isCreated}
             onClick={onEditing}
           />
 
           <IconButton
             variant={isEditing ? 'save' : 'remove'}
-            // disabled - TODO: Only when a request is in progress
+            disabled={isCreated}
           />
         </>
       ) : (
-        <IconButton
-          variant='save'
-          // disabled - TODO: Only when a request is in progress
-        />
+        <IconButton variant='save' disabled={isCreated} loading={isCreated} />
       ),
-    [isEdit, isEditing, onEditing]
+    [isEdit, isEditing, isCreated, onEditing]
   );
 
   useEffect(() => {
-    setTodo({ id, title, annotations, updatedAt });
-  }, [id, title, annotations, updatedAt, isEdit]);
+    setTodo({ id, title, annotation, updatedAt });
+  }, [id, title, annotation, updatedAt, isEdit]);
 
   return (
     <form
@@ -83,7 +94,7 @@ export function TodoCard(props: TodoCardProps) {
         <Input
           value={todo.title}
           variant='text'
-          // disabled - TODO: Only when a request is in progress
+          disabled={isCreated}
           readOnly={isReadOnly}
           onChange={text => setTodo({ ...todo, title: text })}
         />
@@ -92,11 +103,11 @@ export function TodoCard(props: TodoCardProps) {
       </div>
 
       <Input
-        value={todo.annotations}
+        value={todo.annotation}
         variant='textarea'
-        // disabled - TODO: Only when a request is in progress
+        disabled={isCreated}
         readOnly={isReadOnly}
-        onChange={text => setTodo({ ...todo, annotations: text })}
+        onChange={text => setTodo({ ...todo, annotation: text })}
       />
     </form>
   );

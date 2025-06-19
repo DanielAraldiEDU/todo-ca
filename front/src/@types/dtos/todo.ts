@@ -1,6 +1,6 @@
 export interface TodoDTOProps {
   id: string;
   title: string;
-  annotations: string;
+  annotation: string;
   updatedAt: Date | null;
 }

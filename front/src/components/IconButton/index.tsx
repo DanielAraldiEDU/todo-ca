@@ -63,7 +63,8 @@ export function IconButton(props: IconButtonProps) {
 
   const backgroundColor =
     isRemove && shouldConfirm ? 'bg-red-500' : 'bg-transparent';
-  const buttonType = isSave || isRemove ? 'submit' : 'button';
+  const buttonType =
+    isSave || (isRemove && shouldConfirm) ? 'submit' : 'button';
   const shouldShowLoadingRemove = isRemove && loading && shouldConfirm;
   const shouldShowLoading = !isRemove && loading;
 
