@@ -1,12 +1,14 @@
 import 'dotenv/config';
 
 import express, { json } from 'express';
-import { Client } from 'cassandra-driver';
 import cors from 'cors';
 import helmet from 'helmet';
-import { v4 } from 'uuid';
 import { created, noContent, ok, serverError } from './helpers';
 import { RequiredFieldValidation, ValidationComposite } from './validators';
+import {
+  CassandraRepository,
+  CassandraHelper,
+} from './repositories/db/cassandra';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,17 +17,12 @@ app.use(json());
 app.use(cors());
 app.use(helmet());
 
-const client = new Client({
-  contactPoints: [process.env.HOST || 'localhost'],
-  localDataCenter: process.env.DATA_CENTER,
-  keyspace: process.env.KEYSPACE,
-});
-
 app.get('/todos', async (_, res) => {
   try {
-    const query = 'SELECT * FROM todo';
-    const result = await client.execute(query);
-    res.json(ok(result.rows));
+    const cassandraRepository = new CassandraRepository();
+    const result = await cassandraRepository.list();
+
+    res.json(ok(result));
   } catch (error) {
     res.status(500).json(serverError(error));
   }
@@ -43,12 +40,13 @@ app.post('/todo', async (req, res) => {
     const error = validations.validate(req.body);
     if (error) res.status(400).json(error);
 
-    const query = `INSERT INTO todo (id, title, annotation, created_at) VALUES (?, ?, ?, ?)`;
-    const id = v4();
-    const createdAt = new Date();
+    const cassandraRepository = new CassandraRepository();
+    const result = await cassandraRepository.create({
+      title,
+      annotation,
+    });
 
-    await client.execute(query, [id, title, annotation, createdAt]);
-    res.status(201).json(created({ id, title, annotation, createdAt }));
+    res.status(201).json(created(result));
   } catch (error) {
     res.status(500).json(serverError(error));
   }
@@ -68,11 +66,13 @@ app.put('/todo/:id', async (req, res) => {
     const error = validations.validate({ ...req.body, ...req.params });
     if (error) res.status(400).json(error);
 
-    const query = `UPDATE todo SET title = ?, annotation = ?, updated_at = ? WHERE id = ?`;
-    const updatedAt = new Date();
+    const cassandraRepository = new CassandraRepository();
+    const result = await cassandraRepository.update(id, {
+      title,
+      annotation,
+    });
 
-    await client.execute(query, [title, annotation, updatedAt, id]);
-    res.status(200).json(ok({ id, title, annotation, updatedAt }));
+    res.status(200).json(ok(result));
   } catch (error) {
     res.status(500).json(serverError(error));
   }
@@ -89,8 +89,8 @@ app.delete('/todo/:id', async (req, res) => {
     const error = validations.validate(req.params);
     if (error) res.status(400).json(error);
 
-    const query = `DELETE FROM todo WHERE id = ?`;
-    await client.execute(query, [id]);
+    const cassandraRepository = new CassandraRepository();
+    await cassandraRepository.delete(id);
 
     res.status(204).json(noContent());
   } catch (error) {
@@ -99,5 +99,11 @@ app.delete('/todo/:id', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  CassandraHelper.connect();
+
+  if (CassandraHelper.isConnected()) {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  } else {
+    throw new Error('Failed to connect to Cassandra');
+  }
 });
