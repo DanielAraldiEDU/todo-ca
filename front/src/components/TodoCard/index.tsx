@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { type TodoCardProps, type TodoDTOProps } from '../../@types';
 import { Input, IconButton } from '../';
-import { useAddTodo, useRemoveTodo } from '../../services';
+import { useAddTodo, useEditTodo, useRemoveTodo } from '../../services';
 
 export function TodoCard(props: TodoCardProps) {
   const {
@@ -16,11 +16,14 @@ export function TodoCard(props: TodoCardProps) {
   const isEdit = useMemo(() => variant === 'edit', [variant]);
 
   const [isReadOnly, setIsReadOnly] = useState<boolean>(isEdit);
-  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [isRevert, setIsRevert] = useState<boolean>(false);
   const [todo, setTodo] = useState<TodoDTOProps>({} as TodoDTOProps);
 
   const { isPending: isCreating, mutateAsync: create } = useAddTodo();
+  const { isPending: isEditing, mutateAsync: edit } = useEditTodo();
   const { isPending: isRemoving, mutateAsync: remove } = useRemoveTodo();
+
+  const isDisabledInput = isCreating || isRemoving || isEditing;
 
   const onSubmit = useCallback(async () => {
     const { title, annotation } = todo;
@@ -30,28 +33,33 @@ export function TodoCard(props: TodoCardProps) {
       return;
     }
 
-    if (isEditing) {
+    if (isRevert) {
       if (!isEdit) {
         setTodo({ id: '', title: '', annotation: '', updatedAt: null });
       }
       setIsReadOnly(isEdit);
-      setIsEditing(false);
+      setIsRevert(false);
     } else {
-      const result = await create(todo);
-      setTodo(result);
+      if (isEdit) {
+        const result = await edit(todo);
+        setTodo(result);
+      } else {
+        const result = await create(todo);
+        setTodo(result);
+      }
     }
-  }, [todo, isEditing, isEdit, create]);
+  }, [todo, isRevert, isEdit, create, edit]);
 
   const onEditing = useCallback(() => {
-    if (isEditing) {
+    if (isRevert) {
       setTodo({ id, title, annotation, updatedAt });
       setIsReadOnly(true);
-      setIsEditing(false);
+      setIsRevert(false);
     } else {
       setIsReadOnly(false);
-      setIsEditing(true);
+      setIsRevert(true);
     }
-  }, [isEditing, id, title, annotation, updatedAt]);
+  }, [isRevert, id, title, annotation, updatedAt]);
 
   const onRemove = useCallback(async () => {
     await remove(id);
@@ -62,16 +70,17 @@ export function TodoCard(props: TodoCardProps) {
       isEdit ? (
         <>
           <IconButton
-            variant={isEditing ? 'go-back' : 'edit'}
-            disabled={isRemoving}
+            variant={isRevert ? 'go-back' : 'edit'}
+            disabled={isRemoving || isEditing}
+            loading={isEditing}
             onClick={onEditing}
           />
 
           <IconButton
-            variant={isEditing ? 'save' : 'remove'}
-            disabled={isRemoving}
+            variant={isRevert ? 'save' : 'remove'}
+            disabled={isRemoving || isEditing}
             loading={isRemoving}
-            onClick={isEditing ? onSubmit : onRemove}
+            onClick={isRevert ? onSubmit : onRemove}
           />
         </>
       ) : (
@@ -82,7 +91,16 @@ export function TodoCard(props: TodoCardProps) {
           onClick={onSubmit}
         />
       ),
-    [isEdit, isEditing, isCreating, isRemoving, onEditing, onRemove, onSubmit]
+    [
+      isEdit,
+      isRevert,
+      isEditing,
+      isCreating,
+      isRemoving,
+      onEditing,
+      onRemove,
+      onSubmit,
+    ]
   );
 
   useEffect(() => {
@@ -95,7 +113,7 @@ export function TodoCard(props: TodoCardProps) {
         <Input
           value={todo.title}
           variant='text'
-          disabled={isCreating || isRemoving}
+          disabled={isDisabledInput}
           readOnly={isReadOnly}
           onChange={text => setTodo({ ...todo, title: text })}
         />
@@ -106,7 +124,7 @@ export function TodoCard(props: TodoCardProps) {
       <Input
         value={todo.annotation}
         variant='textarea'
-        disabled={isCreating || isRemoving}
+        disabled={isDisabledInput}
         readOnly={isReadOnly}
         onChange={text => setTodo({ ...todo, annotation: text })}
       />
