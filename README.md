@@ -18,3 +18,39 @@ Before, run front project executing:
 ```sh
 npm run dev
 ```
+
+## Back
+
+Create database in cassandra using this script:
+
+```sql
+CREATE KEYSPACE IF NOT EXISTS system_todo
+WITH REPLICATION = {
+	'class': 'SimpleStrategy',
+	'replication_factor': 1
+};
+USE system_todo;
+
+CREATE TABLE todo (
+   id UUID PRIMARY KEY,
+   title TEXT,
+   annotation TEXT,
+   created_at TIMESTAMP,
+   updated_at TIMESTAMP
+);
+
+DESCRIBE TABLES
+```
+
+Install all dependencies running:
+
+```sh
+cd server
+npm install # or npm i
+```
+
+Before, run front project executing:
+
+```sh
+npm run dev
+```
