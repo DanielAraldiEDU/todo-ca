@@ -5,4 +5,5 @@ export interface TodoCardProps {
   id?: string;
   title?: string;
   annotations?: string;
+  updatedAt?: Date | null;
 }

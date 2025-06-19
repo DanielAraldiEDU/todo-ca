@@ -1,7 +1,11 @@
-import type { SpinnerColorType, SpinnerProps } from '../../@types';
+import type {
+  SpinnerColorType,
+  SpinnerProps,
+  SpinnerSizeType,
+} from '../../@types';
 
 export function Spinner(props: SpinnerProps) {
-  const { color = 'primary' } = props;
+  const { color = 'primary', size = 'medium' } = props;
 
   const borderColors: Record<SpinnerColorType, string> = {
     primary: 'border-neutral-900',
@@ -9,10 +13,15 @@ export function Spinner(props: SpinnerProps) {
     success: 'border-green-500',
   };
 
+  const sizes: Record<SpinnerSizeType, string> = {
+    medium: 'size-6',
+    large: 'size-8',
+  };
+
   return (
     <div className='flex justify-center'>
       <div
-        className={`size-6 border-2 ${borderColors[color]} border-t-transparent rounded-full animate-spin`}
+        className={`${sizes[size]} border-2 ${borderColors[color]} border-t-transparent rounded-full animate-spin`}
       />
     </div>
   );

@@ -5,23 +5,31 @@ import {
   useState,
   type FormEvent,
 } from 'react';
-import { type TodoCardProps, type TodoDtoProps } from '../../@types';
+import { type TodoCardProps, type TodoDTOProps } from '../../@types';
 import { Input, IconButton } from '../';
 
 export function TodoCard(props: TodoCardProps) {
-  const { variant, id = '', title = '', annotations = '' } = props;
+  const {
+    variant,
+    id = '',
+    title = '',
+    annotations = '',
+    updatedAt = null,
+  } = props;
 
   const isEdit = useMemo(() => variant === 'edit', [variant]);
 
   const [isReadOnly, setIsReadOnly] = useState<boolean>(isEdit);
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [todo, setTodo] = useState<TodoDtoProps>({} as TodoDtoProps);
+  const [todo, setTodo] = useState<TodoDTOProps>({} as TodoDTOProps);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (isEditing) {
-      if (!isEdit) setTodo({ id: '', title: '', annotations: '' });
+      if (!isEdit) {
+        setTodo({ id: '', title: '', annotations: '', updatedAt: null });
+      }
       setIsReadOnly(isEdit);
       setIsEditing(false);
     }
@@ -29,14 +37,14 @@ export function TodoCard(props: TodoCardProps) {
 
   const onEditing = useCallback(() => {
     if (isEditing) {
-      setTodo({ id, title, annotations });
+      setTodo({ id, title, annotations, updatedAt });
       setIsReadOnly(true);
       setIsEditing(false);
     } else {
       setIsReadOnly(false);
       setIsEditing(true);
     }
-  }, [isEditing, id, title, annotations]);
+  }, [isEditing, id, title, annotations, updatedAt]);
 
   const renderButtons = useMemo(
     () =>
@@ -63,8 +71,8 @@ export function TodoCard(props: TodoCardProps) {
   );
 
   useEffect(() => {
-    setTodo({ id, title, annotations });
-  }, [id, title, annotations, isEdit]);
+    setTodo({ id, title, annotations, updatedAt });
+  }, [id, title, annotations, updatedAt, isEdit]);
 
   return (
     <form
