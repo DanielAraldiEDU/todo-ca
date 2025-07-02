@@ -38,6 +38,8 @@ export function TodoCard(props: TodoCardProps) {
       if (isEdit) {
         const result = await edit(todo);
         setTodo(result);
+
+        toast.success('Todo editado com sucesso!');
       } else {
         setTodo({ id: '', title: '', annotation: '', updatedAt: null });
       }
@@ -47,6 +49,8 @@ export function TodoCard(props: TodoCardProps) {
     } else {
       await create(todo);
       setTodo({ id: '', title: '', annotation: '', updatedAt: null });
+
+      toast.success('Todo criado com sucesso!');
     }
   }, [todo, isRevert, isEdit, create, edit]);
 
@@ -63,6 +67,8 @@ export function TodoCard(props: TodoCardProps) {
 
   const onRemove = useCallback(async () => {
     await remove(id);
+
+    toast.success('Todo removido com sucesso!');
   }, [remove, id]);
 
   const renderButtons = useMemo(
