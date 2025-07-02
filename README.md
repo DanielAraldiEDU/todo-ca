@@ -42,6 +42,18 @@ CREATE TABLE todo (
 DESCRIBE TABLES
 ```
 
+To up cassandra database use this command (in MacOS):
+
+```sh
+brew services start cassandra
+```
+
+Now, down cassandra database running this command (in MacOS):
+
+```sh
+brew services stop cassandra
+```
+
 Install all dependencies running:
 
 ```sh
